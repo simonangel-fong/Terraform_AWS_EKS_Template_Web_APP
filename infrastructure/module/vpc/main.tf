@@ -28,30 +28,6 @@ resource "aws_subnet" "subnets" {
   }
 }
 
-
-
-# resource "aws_subnet" "main_subnet_public_a" {
-#   vpc_id                  = aws_vpc.app_vpc.id
-#   availability_zone       = "${var.aws_region}a"
-#   cidr_block              = "10.0.1.0/24"
-#   map_public_ip_on_launch = true
-
-#   tags = {
-#     Name = "${var.project}-${var.app}-${var.env}-subnet-public-a"
-#   }
-# }
-
-# resource "aws_subnet" "main_subnet_public_b" {
-#   vpc_id                  = aws_vpc.app_vpc.id
-#   availability_zone       = "${var.aws_region}b"
-#   cidr_block              = "10.0.2.0/24"
-#   map_public_ip_on_launch = true
-
-#   tags = {
-#     Name = "${var.project}-${var.app}-${var.env}-subnet-public-b"
-#   }
-# }
-
 # ##############################
 # Internet Gateway
 # ##############################

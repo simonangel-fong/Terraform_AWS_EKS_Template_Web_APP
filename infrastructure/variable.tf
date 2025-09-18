@@ -15,24 +15,27 @@ variable "env" {
 }
 variable "aws_region" { type = string }
 
-variable "vpc_ip" {
+variable "vpc_cidr" {
   type    = string
   default = "10.0.0.0/16"
 }
 
 variable "subnets" {
   type = map(object({
-    cidr_block = string
-    az_suffix  = string
+    subnet_name = string
+    cidr_block  = string
+    az_suffix   = string
   }))
   default = {
     public_subnet_1a = {
-      cidr_block = "10.0.1.0/24"
-      az_suffix  = "a"
+      subnet_name = "public_subnet"
+      cidr_block  = "10.0.1.0/24"
+      az_suffix   = "a"
     }
     public_subnet_1b = {
-      cidr_block = "10.0.2.0/24"
-      az_suffix  = "b"
+      subnet_name = "public_subnet"
+      cidr_block  = "10.0.2.0/24"
+      az_suffix   = "b"
     }
   }
 }
