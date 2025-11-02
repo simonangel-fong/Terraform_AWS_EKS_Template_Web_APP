@@ -3,7 +3,7 @@ module "eks" {
   version = "~> 21.0"
 
   name               = local.eks_name
-  kubernetes_version = "1.33"
+  kubernetes_version = "1.34"
 
   # Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true

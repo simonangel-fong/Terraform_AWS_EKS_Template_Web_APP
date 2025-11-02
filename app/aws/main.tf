@@ -12,6 +12,20 @@ module "aws_vpc" {
   vpc_subnet = var.vpc_subnet
 }
 
+# # ##############################
+# # AWS NLB
+# # ##############################
+# module "aws_nlb" {
+#   source     = "../../module/nlb"
+#   project    = var.project
+#   app        = var.app
+#   env        = var.env
+#   aws_region = var.aws_region
+#   # network
+#   vpc_id         = module.aws_vpc.vpc_id
+#   subnet_id_list = module.aws_vpc.subnet_id_list
+# }
+
 # ##############################
 # AWS EKS
 # ##############################

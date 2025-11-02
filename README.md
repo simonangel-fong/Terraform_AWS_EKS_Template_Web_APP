@@ -1,5 +1,12 @@
 # Terraform Demo: AWS EKS
 
+- [Terraform Demo: AWS EKS](#terraform-demo-aws-eks)
+  - [Application - nginx](#application---nginx)
+  - [Infrastructure - Terraform(AWS)](#infrastructure---terraformaws)
+  - [K8s](#k8s)
+
+---
+
 ## Application - nginx
 
 ```sh
@@ -119,8 +126,29 @@ kubectl config get-contexts
 
 ## K8s
 
+- Deploy workload
+
 ```sh
 kubectl create -f ./app/k8s/
+# kubectl delete -f ./app/k8s/
+
+# get endpoint
+kubectl get svc nginx-svc-lb
+# NAME           TYPE           CLUSTER-IP       EXTERNAL-IP
+        # PORT(S)        AGE
+# nginx-svc-lb   LoadBalancer   172.20.172.239   a277537cd62344fd9806fcff0daaf228-1758106054.ca-central-1.elb.amazonaws.com   80:31103/TCP   8m50s
+
+# test
+curl http://a277537cd62344fd9806fcff0daaf228-1758106054.ca-central-1.elb.amazonaws.com
 ```
 
----
+- http website
+
+![pic](./pic.png)
+
+- Clean up
+
+```sh
+kubectl delete svc nginx-svc-lb
+# service "nginx-svc-lb" deleted from default namespace
+```
