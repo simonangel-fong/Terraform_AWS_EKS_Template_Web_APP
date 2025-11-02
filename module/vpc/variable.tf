@@ -1,10 +1,20 @@
+# ##############################
+# App
+# ##############################
 variable "aws_region" { type = string }
 variable "project" { type = string }
 variable "app" { type = string }
 variable "env" { type = string }
-variable "vpc_cidr" { type = string }
 
-variable "subnets" {
+# ##############################
+# VPC
+# ##############################
+locals {
+  vpc_name = "${var.project}-${var.app}-${var.env}-vpc"
+}
+
+variable "vpc_cidr" { type = string }
+variable "vpc_subnet" {
   description = "A map of subnet configurations."
   type = map(object({
     subnet_name = string

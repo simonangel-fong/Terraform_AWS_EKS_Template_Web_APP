@@ -7,7 +7,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${var.project}-${var.app}-${var.env}-vpc"
+    Name = local.vpc_name
   }
 }
 
@@ -16,7 +16,7 @@ resource "aws_vpc" "main" {
 # ##############################
 
 resource "aws_subnet" "subnets" {
-  for_each = var.subnets
+  for_each = var.vpc_subnet
 
   vpc_id                  = aws_vpc.main.id
   cidr_block              = each.value.cidr_block
@@ -59,7 +59,7 @@ resource "aws_route_table" "main_rt_public" {
 # Route Table Associations
 # ##############################
 resource "aws_route_table_association" "public_assoc" {
-  for_each       = var.subnets
+  for_each       = var.vpc_subnet
   subnet_id      = aws_subnet.subnets[each.key].id
   route_table_id = aws_route_table.main_rt_public.id
 }

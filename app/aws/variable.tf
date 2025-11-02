@@ -3,24 +3,30 @@
 # ##############################
 variable "project" {
   type    = string
-  default = "aws-eks-project"
+  default = "tf-demo-eks"
 }
+
 variable "app" {
   type    = string
-  default = "fastapi"
+  default = "web-app"
 }
+
 variable "env" {
   type    = string
   default = "dev"
 }
+
 variable "aws_region" { type = string }
 
+# ##############################
+# AWS VPC
+# ##############################
 variable "vpc_cidr" {
   type    = string
   default = "10.0.0.0/16"
 }
 
-variable "subnets" {
+variable "vpc_subnet" {
   type = map(object({
     subnet_name = string
     cidr_block  = string
@@ -38,4 +44,32 @@ variable "subnets" {
       az_suffix   = "b"
     }
   }
+}
+
+# ##############################
+# AWS EKS
+# ##############################
+variable "node_image" {
+  type    = string
+  default = "AL2023_x86_64_STANDARD"
+}
+
+variable "node_type" {
+  type    = string
+  default = "t3.medium"
+}
+
+variable "node_min_size" {
+  type    = number
+  default = 1
+}
+
+variable "node_max_size" {
+  type    = number
+  default = 1
+}
+
+variable "node_desired_size" {
+  type    = number
+  default = 1
 }
