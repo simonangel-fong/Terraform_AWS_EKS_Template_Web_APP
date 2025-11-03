@@ -1,9 +1,16 @@
-# Terraform Demo: AWS EKS
+# Terraform Demo: AWS EKS - `nginx`
 
-- [Terraform Demo: AWS EKS](#terraform-demo-aws-eks)
+- [Terraform Demo: AWS EKS - `nginx`](#terraform-demo-aws-eks---nginx)
+  - [Diagram](#diagram)
   - [Application - nginx](#application---nginx)
   - [Infrastructure - Terraform(AWS)](#infrastructure---terraformaws)
   - [K8s](#k8s)
+
+---
+
+## Diagram
+
+![diagram](./pic/diagram.gif)
 
 ---
 
@@ -130,7 +137,8 @@ kubectl config get-contexts
 
 ```sh
 kubectl create -f ./app/k8s/
-# kubectl delete -f ./app/k8s/
+# deployment.apps/deploy-nginx created
+# service/nginx-svc-lb created
 
 # get endpoint
 kubectl get svc nginx-svc-lb
@@ -144,11 +152,22 @@ curl http://a277537cd62344fd9806fcff0daaf228-1758106054.ca-central-1.elb.amazona
 
 - http website
 
-![pic](./pic.png)
+![pic](./pic/pic.png)
+
+- Scale up deploy
+
+```sh
+# ec2 type support only 12 + 5 pods
+kubectl scale --replicas=12 deployment deploy-nginx && kubectl rollout status deployment deploy-nginx
+```
 
 - Clean up
 
 ```sh
-kubectl delete svc nginx-svc-lb
+kubectl delete -f ./app/k8s/
+# deployment.apps "deploy-nginx" deleted from default namespace
 # service "nginx-svc-lb" deleted from default namespace
+
+cd ./app/aws/
+terraform apply -auto-approve -destroy
 ```
