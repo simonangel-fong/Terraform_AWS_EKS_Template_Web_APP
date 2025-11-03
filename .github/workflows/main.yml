@@ -59,6 +59,7 @@ jobs:
           key: ${{ runner.os }}-terraform-${{ env.TF_VERSION }}
 
       - name: Terraform init - S3 backend
+        working-directory: app/aws
         run: |
           terraform init -reconfigure -input=false \
             -backend-config="bucket=${{ vars.AWS_BACKEND_BUCKET }}" \
