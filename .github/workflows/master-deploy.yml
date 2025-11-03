@@ -154,10 +154,7 @@ jobs:
           github.ref == 'refs/heads/master' &&
           github.event_name == 'push' &&
           steps.action.outputs.action == 'destroy'
-        run: |
-          echo "remove from eks"
-        # run: |
-        #   kubectl create -f ${{ env.KUBE_DIR }}
+        run: kubectl create -f ${{ env.KUBE_DIR }}
 
       - name: Terraform Apply
         working-directory: ${{ env.AWS_DIR }}
@@ -165,22 +162,19 @@ jobs:
           github.ref == 'refs/heads/master' &&
           github.event_name == 'push' &&
           steps.action.outputs.action == 'apply'
-        run: echo "TF apply"
-        # run: terraform apply -auto-approve -no-color tfplan
+        run: terraform apply -auto-approve -no-color tfplan
 
       - name: Update kube config
-        run: echo "Update kube config"
-        # run: |
-        #   aws --version
-        #   aws eks update-kubeconfig --name ${{env.EKS_CLUSTER_NAME}} --region ${{ vars.AWS_REGION }}
-        #   kubectl config get-contexts
-        #   kubectl config current-context
+        run: |
+          aws --version
+          aws eks update-kubeconfig --name ${{env.EKS_CLUSTER_NAME}} --region ${{ vars.AWS_REGION }}
+          kubectl config get-contexts
+          kubectl config current-context
 
       - name: Apply - Deploy k8s to EKS
         if: |
           github.ref == 'refs/heads/master' &&
           github.event_name == 'push' &&
           steps.action.outputs.action == 'apply'
-        run: echo "Apply - Deploy k8s to EKS"
-        # run: |
-        #   kubectl create -f ${{ env.KUBE_DIR }}
+        run: |
+          kubectl create -f ${{ env.KUBE_DIR }}
