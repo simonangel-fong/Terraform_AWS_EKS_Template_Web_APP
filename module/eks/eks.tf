@@ -36,7 +36,7 @@ module "eks" {
       desired_size   = "${var.node_desired_size}"
 
       tags = {
-        Name = "${var.project}-${var.app}-${var.env}-node"
+        Name = "${var.project}-${var.env}-node"
       }
     }
   }

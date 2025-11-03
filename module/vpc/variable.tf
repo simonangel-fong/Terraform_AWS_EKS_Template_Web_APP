@@ -3,14 +3,13 @@
 # ##############################
 variable "aws_region" { type = string }
 variable "project" { type = string }
-variable "app" { type = string }
 variable "env" { type = string }
 
 # ##############################
 # VPC
 # ##############################
 locals {
-  vpc_name = "${var.project}-${var.app}-${var.env}-vpc"
+  vpc_name = "${var.project}-${var.env}-vpc"
 }
 
 variable "vpc_cidr" { type = string }

@@ -4,7 +4,6 @@
 module "aws_vpc" {
   source     = "../../module/vpc"
   project    = var.project
-  app        = var.app
   env        = var.env
   aws_region = var.aws_region
   # network
@@ -32,7 +31,6 @@ module "aws_vpc" {
 module "aws_eks" {
   source     = "../../module/eks"
   project    = var.project
-  app        = var.app
   env        = var.env
   aws_region = var.aws_region
   # vpc

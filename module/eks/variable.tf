@@ -3,14 +3,13 @@
 # ##############################
 variable "aws_region" { type = string }
 variable "project" { type = string }
-variable "app" { type = string }
 variable "env" { type = string }
 
 # ##############################
 # EKS
 # ##############################
 locals {
-  eks_name = "${var.project}-${var.app}-eks"
+  eks_name = "${var.project}-eks"
 }
 # network
 variable "vpc_id" { type = string }

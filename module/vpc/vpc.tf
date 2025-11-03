@@ -24,7 +24,7 @@ resource "aws_subnet" "subnets" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.project}-${var.app}-${var.env}-${each.value.subnet_name}-${each.value.az_suffix}"
+    Name = "${var.project}-${var.env}-${each.value.subnet_name}-${each.value.az_suffix}"
   }
 }
 
@@ -35,7 +35,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.project}-${var.app}-${var.env}-igw"
+    Name = "${var.project}-${var.env}-igw"
   }
 }
 
@@ -51,7 +51,7 @@ resource "aws_route_table" "main_rt_public" {
   }
 
   tags = {
-    Name = "${var.project}-${var.app}-${var.env}-route-table"
+    Name = "${var.project}-${var.env}-route-table"
   }
 }
 

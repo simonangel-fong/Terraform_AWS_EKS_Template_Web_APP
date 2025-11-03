@@ -3,12 +3,7 @@
 # ##############################
 variable "project" {
   type    = string
-  default = "tf-demo-eks"
-}
-
-variable "app" {
-  type    = string
-  default = "web-app"
+  default = "tf-demo-eks-webapp"
 }
 
 variable "env" {
