@@ -2,12 +2,18 @@ name: Deploy to EKS
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
 
-env:
-  ECR_REPOSITORY: flask-app
-  EKS_CLUSTER_NAME: Kubernetes-demo
-  AWS_REGION: us-east-1
+# read write
+permissions:
+  contents: read
+  id-token: write
+
+# multiple trigger
+concurrency:
+  group: staging-cd-${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true # Cancel older runs
 
 jobs:
   deploy:
