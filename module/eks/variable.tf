@@ -9,7 +9,7 @@ variable "env" { type = string }
 # EKS
 # ##############################
 locals {
-  eks_name = "${var.project}-eks"
+  eks_name = "${var.project}-${var.env}-eks"
 }
 # network
 variable "vpc_id" { type = string }
