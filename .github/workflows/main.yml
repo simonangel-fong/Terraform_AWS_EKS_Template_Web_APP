@@ -91,8 +91,9 @@ jobs:
             ${{ env.TF_AWS_DIR }}/tfplan.json
           retention-days: 3
 
-      # - name: Terraform Apply - Dev
-      #   run: terraform apply -auto-approve -no-color tfplan
+      - name: Terraform Apply - Dev
+        working-directory: app/aws
+        run: terraform apply -auto-approve -no-color tfplan
 
       # - name: Update kube config
       #   run: |
