@@ -48,128 +48,133 @@ jobs:
           tags: "${{ vars.DOCKERHUB_REPO }}"
           labels: ${{ steps.meta.outputs.labels }}
 
-  # deploy:
-  #   name: Deployment
-  #   runs-on: ubuntu-latest
-  #   environment: Dev
-  #   timeout-minutes: 60
-  #   env:
-  #     TF_AWS_DIR: app/aws
-  #     TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
-  #     TF_VERSION: 1.9.8
-  #     TF_VAR_project: ${{ vars.PROJECT }}
-  #     TF_VAR_env: ${{ vars.ENV }}
-  #     TF_VAR_aws_region: ${{ vars.AWS_REGION }}
-  #     EKS_CLUSTER_NAME: "${{ vars.PROJECT}}-${{ vars.ENV }}-eks"
-  #     KUBE_DIR: app/k8s
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: Dev
+    timeout-minutes: 60
+    env:
+      AWS_DIR: app/aws
+      TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
+      TF_VERSION: 1.9.8
+      TF_VAR_project: ${{ vars.PROJECT }}
+      TF_VAR_env: ${{ vars.ENV }}
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      EKS_CLUSTER_NAME: "${{ vars.PROJECT}}-${{ vars.ENV }}-eks"
+      KUBE_DIR: app/k8s
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Read Terraform Action
-  #       id: action
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       run: |
-  #         pwd
-  #         ls -al
-  #         if [ -f "terraform.ini" ]; then
-  #           ACTION=$(cat terraform.ini | tr -d '\n\r')
-  #           echo "action=$ACTION" >> $GITHUB_OUTPUT
-  #         else
-  #           echo "action=''" >> $GITHUB_OUTPUT
-  #         fi
+      - name: Read Terraform Action
+        id: action
+        working-directory: ${{ env.AWS_DIR }}
+        run: |
+          pwd
+          ls -al
+          if [ -f "terraform.ini" ]; then
+            ACTION=$(cat terraform.ini | tr -d '\n\r')
+            echo "action=$ACTION" >> $GITHUB_OUTPUT
+          else
+            echo "action=''" >> $GITHUB_OUTPUT
+          fi
 
-  #     - name: Setup Terraform
-  #       uses: hashicorp/setup-terraform@v3
-  #       with:
-  #         terraform_version: ${{ env.TF_VERSION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
-  #     - name: Configure AWS credentials (OIDC)
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ secrets.TF_AWS_ROLE }}
-  #         aws-region: ${{ env.TF_VAR_aws_region }}
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.TF_AWS_ROLE }}
+          aws-region: ${{ env.TF_VAR_aws_region }}
 
-  #     - name: Configure Terraform plugin cache
-  #       run: |
-  #         ls ~
-  #         mkdir -pv ${{ env.TF_PLUGIN_CACHE_DIR }}
-  #         echo 'plugin_cache_dir = "~/.terraform.d/plugin-cache"' > ~/.terraformrc
+      - name: Configure Terraform plugin cache
+        run: |
+          ls ~
+          mkdir -pv ${{ env.TF_PLUGIN_CACHE_DIR }}
+          echo 'plugin_cache_dir = "~/.terraform.d/plugin-cache"' > ~/.terraformrc
 
-  #     - name: Cache Terraform plugins
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: ${{env.TF_PLUGIN_CACHE_DIR}}
-  #         key: ${{ runner.os }}-terraform-${{ env.TF_VERSION }}
+      - name: Cache Terraform plugins
+        uses: actions/cache@v4
+        with:
+          path: ${{env.TF_PLUGIN_CACHE_DIR}}
+          key: ${{ runner.os }}-terraform-${{ env.TF_VERSION }}
 
-  #     - name: Terraform init - S3 backend
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       run: |
-  #         terraform init -reconfigure -input=false \
-  #           -backend-config="bucket=${{ vars.AWS_BACKEND_BUCKET }}" \
-  #           -backend-config="region=${{ vars.AWS_REGION }}" \
-  #           -backend-config="key=${{ vars.PROJECT }}/${{ vars.ENV }}/terraform.tfstate" \
-  #           -backend-config="encrypt=true"
+      - name: Terraform init - S3 backend
+        working-directory: ${{ env.AWS_DIR }}
+        run: |
+          terraform init -reconfigure -input=false \
+            -backend-config="bucket=${{ vars.AWS_BACKEND_BUCKET }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="key=${{ vars.PROJECT }}/${{ vars.ENV }}/terraform.tfstate" \
+            -backend-config="encrypt=true"
 
-  #     - name: Terraform Validate
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       run: |
-  #         terraform fmt -check -recursive -no-color
-  #         terraform validate -no-color
+      - name: Terraform Validate
+        working-directory: ${{ env.AWS_DIR }}
+        run: |
+          terraform fmt -check -recursive -no-color
+          terraform validate -no-color
 
-  #     - name: Terraform Plan - Apply
-  #       id: plan_apply
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       if: |
-  #         github.ref == 'refs/heads/master' &&
-  #         github.event_name == 'push' &&
-  #         steps.action.outputs.action == 'apply'
-  #       run: terraform plan -out=tfplan -input=false -no-color
+      - name: Apply - Terraform Plan
+        id: plan_apply
+        working-directory: ${{ env.AWS_DIR }}
+        if: |
+          github.ref == 'refs/heads/master' &&
+          github.event_name == 'push' &&
+          steps.action.outputs.action == 'apply'
+        run: terraform plan -out=tfplan -input=false -no-color
 
-  #     - name: Terraform Plan - Destroy
-  #       id: plan_destroy
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       if: |
-  #         github.ref == 'refs/heads/master' &&
-  #         github.event_name == 'push' &&
-  #         steps.action.outputs.action == 'destroy'
-  #       run: terraform plan -destroy -out=tfplan -input=false -no-color
+      - name: Destroy - Terraform Plan
+        id: plan_destroy
+        working-directory: ${{ env.AWS_DIR }}
+        if: |
+          github.ref == 'refs/heads/master' &&
+          github.event_name == 'push' &&
+          steps.action.outputs.action == 'destroy'
+        run: terraform plan -destroy -out=tfplan -input=false -no-color
 
-  #     - name: Show plan (JSON)
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       run: terraform show -json tfplan > tfplan.json
+      - name: Show plan (JSON)
+        working-directory: ${{ env.AWS_DIR }}
+        run: terraform show -json tfplan > tfplan.json
 
-  #     - name: Save plan artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: tfplan
-  #         path: |
-  #           ${{ env.TF_AWS_DIR }}/tfplan
-  #           ${{ env.TF_AWS_DIR }}/tfplan.json
-  #         retention-days: 3
+      - name: Save plan artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: |
+            ${{ env.AWS_DIR }}/tfplan
+            ${{ env.AWS_DIR }}/tfplan.json
+          retention-days: 3
 
-  #     - name: Terraform Apply
-  #       working-directory: ${{ env.TF_AWS_DIR }}
-  #       # if: |
-  #       #   github.ref == 'refs/heads/master' &&
-  #       #   github.event_name == 'push' &&
-  #       #   steps.action.outputs.action == 'apply'
-  #       run: terraform apply -auto-approve -no-color tfplan
+      # - name: Destroy - Remove from EKS
+      #   if: |
+      #     github.ref == 'refs/heads/master' &&
+      #     github.event_name == 'push' &&
+      #     steps.action.outputs.action == 'destroy'
+      #   run: |
+      #     kubectl create -f ${{ env.KUBE_DIR }}
 
-  #     # - name: Terraform Destroy
-  #     #   if: |
-  #     #     github.ref == 'refs/heads/master' &&
-  #     #     github.event_name == 'push' &&
-  #     #     steps.action.outputs.action == 'destroy'
-  #     #   run: terraform apply -auto-approve -no-color -destroy tfplan
+      # - name: Terraform Apply
+      #   working-directory: ${{ env.AWS_DIR }}
+      #   if: |
+      #     github.ref == 'refs/heads/master' &&
+      #     github.event_name == 'push' &&
+      #     steps.action.outputs.action == 'apply'
+      #   run: terraform apply -auto-approve -no-color tfplan
 
-  #     - name: Update kube config
-  #       run: |
-  #         aws --version
-  #         aws eks update-kubeconfig --name ${{env.EKS_CLUSTER_NAME}} --region ${{ vars.AWS_REGION }}
-  #         kubectl config get-contexts
-  #         kubectl config current-context
+      # - name: Update kube config
+      #   run: |
+      #     aws --version
+      #     aws eks update-kubeconfig --name ${{env.EKS_CLUSTER_NAME}} --region ${{ vars.AWS_REGION }}
+      #     kubectl config get-contexts
+      #     kubectl config current-context
 
-  #     - name: Deploy to EKS
-  #       run: |
-  #         kubectl create -f ${{ env.KUBE_DIR }}
+      # - name: Apply - Deploy k8s to EKS
+      #   if: |
+      #     github.ref == 'refs/heads/master' &&
+      #     github.event_name == 'push' &&
+      #     steps.action.outputs.action == 'apply'
+      #   run: |
+      #     kubectl create -f ${{ env.KUBE_DIR }}
