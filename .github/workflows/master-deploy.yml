@@ -85,10 +85,23 @@ jobs:
           terraform fmt -check -recursive -no-color
           terraform validate -no-color
 
-      - name: Terraform Plan
-        id: plan
+      - name: Terraform Apply Plan
+        id: plan_apply
         working-directory: ${{ env.TF_AWS_DIR }}
+        if: |
+          github.ref == 'refs/heads/master' && 
+          github.event_name == 'push' && 
+          steps.action.outputs.action == 'apply'
         run: terraform plan -out=tfplan -input=false -no-color
+
+      - name: Terraform Destroy Plan
+        id: plan_destroy
+        working-directory: ${{ env.TF_AWS_DIR }}
+        if: |
+          github.ref == 'refs/heads/master' && 
+          github.event_name == 'push' && 
+          steps.action.outputs.action == 'destroy'
+        run: terraform plan -destroy -out=tfplan -input=false -no-color
 
       - name: Show plan (JSON)
         working-directory: ${{ env.TF_AWS_DIR }}
@@ -105,18 +118,18 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_AWS_DIR }}
-        if: |
-          github.ref == 'refs/heads/master' && 
-          github.event_name == 'push' && 
-          steps.action.outputs.action == 'apply'
+        # if: |
+        #   github.ref == 'refs/heads/master' && 
+        #   github.event_name == 'push' && 
+        #   steps.action.outputs.action == 'apply'
         run: terraform apply -auto-approve -no-color tfplan
 
-      - name: Terraform Destroy
-        if: |
-          github.ref == 'refs/heads/master' &&
-          github.event_name == 'push' &&
-          steps.action.outputs.action == 'destroy'
-        run: terraform apply -auto-approve -no-color -destroy tfplan
+      # - name: Terraform Destroy
+      #   if: |
+      #     github.ref == 'refs/heads/master' &&
+      #     github.event_name == 'push' &&
+      #     steps.action.outputs.action == 'destroy'
+      #   run: terraform apply -auto-approve -no-color -destroy tfplan
 
       - name: Update kube config
         run: |
