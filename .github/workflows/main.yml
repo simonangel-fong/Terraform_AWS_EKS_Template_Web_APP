@@ -61,6 +61,17 @@ jobs:
             -backend-config="key=${{ vars.AWS_BACKEND_BUCKET_KEY }}/${{ env.TF_VAR_env }}/terraform.tfstate" \
             -backend-config="encrypt=true"
 
+      - name: Terraform Validate
+        run: |
+          terraform fmt -check -recursive -no-color
+          terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan -input=false -no-color
+
+      - name: Show plan (JSON)
+        run: terraform show -json tfplan > tfplan.json
 
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v1
