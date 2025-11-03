@@ -15,6 +15,9 @@ concurrency:
   group: staging-cd-${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true # Cancel older runs
 
+env:
+  NGINX_DIR: app/nginx
+
 jobs:
   build:
     name: Build
@@ -42,7 +45,7 @@ jobs:
         id: push
         uses: docker/build-push-action@v3
         with:
-          context: ./web-app/api
+          context: ${{ env.NGINX_DIR }}
           push: true
           tags: "${{ vars.DOCKERHUB_REPO }}"
           labels: ${{ steps.meta.outputs.labels }}
