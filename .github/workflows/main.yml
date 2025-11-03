@@ -22,7 +22,7 @@ jobs:
     environment: Dev
     timeout-minutes: 60
     env:
-      TF_AWS_DIR: web-app/aws
+      TF_AWS_DIR: app/aws
       TF_PLUGIN_CACHE_DIR: /home/runner/.terraform.d/plugin-cache
       TF_VERSION: 1.9.8
       TF_VAR_aws_region: ${{ vars.AWS_REGION }}
