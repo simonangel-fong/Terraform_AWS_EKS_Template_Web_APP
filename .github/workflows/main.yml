@@ -22,11 +22,14 @@ jobs:
     environment: Dev
     timeout-minutes: 60
     env:
+      TF_AWS_DIR: web-app/aws
       TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
       TF_VERSION: 1.9.8
       TF_VAR_aws_region: ${{ vars.AWS_REGION }}
       TF_VAR_env: ${{ vars.ENV }}
-
+    defaults:
+      run:
+        working-directory: ${{ env.TF_AWS_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,6 +75,18 @@ jobs:
 
       - name: Show plan (JSON)
         run: terraform show -json tfplan > tfplan.json
+
+      - name: Save plan artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: |
+            ${{ env.TF_AWS_DIR }}/tfplan
+            ${{ env.TF_AWS_DIR }}/tfplan.json
+          retention-days: 3
+
+      # - name: Terraform Apply - Dev
+      #   run: terraform apply -auto-approve -no-color tfplan
 
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v1
