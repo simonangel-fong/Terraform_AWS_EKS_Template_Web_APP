@@ -149,13 +149,15 @@ jobs:
             ${{ env.AWS_DIR }}/tfplan.json
           retention-days: 3
 
-      # - name: Destroy - Remove from EKS
-      #   if: |
-      #     github.ref == 'refs/heads/master' &&
-      #     github.event_name == 'push' &&
-      #     steps.action.outputs.action == 'destroy'
-      #   run: |
-      #     kubectl create -f ${{ env.KUBE_DIR }}
+      - name: Destroy - Remove from EKS
+        if: |
+          github.ref == 'refs/heads/master' &&
+          github.event_name == 'push' &&
+          steps.action.outputs.action == 'destroy'
+        run: |
+          echo "remove from eks"
+        # run: |
+        #   kubectl create -f ${{ env.KUBE_DIR }}
 
       # - name: Terraform Apply
       #   working-directory: ${{ env.AWS_DIR }}
