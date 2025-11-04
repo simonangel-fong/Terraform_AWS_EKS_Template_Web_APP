@@ -156,13 +156,21 @@ jobs:
       #     steps.action.outputs.action == 'destroy'
       #   run: kubectl delete -f ${{ env.KUBE_DIR }}
 
-      - name: Terraform Apply
+      - name: Apply - Terraform Apply
         working-directory: ${{ env.AWS_DIR }}
         if: |
           github.ref == 'refs/heads/master' &&
           github.event_name == 'push' &&
           steps.action.outputs.action == 'apply'
         run: terraform apply -auto-approve -no-color tfplan
+
+      - name: Destroy - Terraform Apply
+        working-directory: ${{ env.AWS_DIR }}
+        if: |
+          github.ref == 'refs/heads/master' &&
+          github.event_name == 'push' &&
+          steps.action.outputs.action == 'destroy'
+        run: terraform apply -auto-approve -no-color -destroy
 
       - name: Update kube config
         run: |
